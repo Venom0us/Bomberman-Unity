@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Bomberman.SharedFiles.TilemapFiles;
 using UnityEngine;
 
-namespace Bomberman.SharedFiles.Generation
+namespace Bomberman.SharedFiles.GenerationFiles
 {
     public abstract class Generator : ScriptableObject
     {

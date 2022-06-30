@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 107da5a803a6f424791d7d639507cacd, type: 3}
-  m_Name: ArenaGenerator
+  m_Script: {fileID: 11500000, guid: f3e0abd076014924ca8b16c7b8aa9889, type: 3}
+  m_Name: WallGenerator
   m_EditorClassIdentifier: 
-  WalkableTile: 1
-  WallTile: 2
-  BorderTile: 2
+  WallTile: 1

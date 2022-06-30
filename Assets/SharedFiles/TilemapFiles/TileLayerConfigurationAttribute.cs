@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bomberman.SharedFiles
+namespace Bomberman.SharedFiles.TilemapFiles
 {
     internal class TileLayerConfigurationAttribute : Attribute
     {

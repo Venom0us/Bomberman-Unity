@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Bomberman.SharedFiles.TilemapFiles;
+using UnityEngine;
 
-namespace Bomberman.SharedFiles.Generation
+namespace Bomberman.SharedFiles.GenerationFiles.Generators
 {
     [CreateAssetMenu(menuName = "Map/Generators/ArenaGenerator")]
     public class ArenaGenerator : Generator

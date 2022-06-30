@@ -166,7 +166,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1002693387}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bc8a1cc01889b6428429b3a6a5dbc88, type: 3}
+  m_Script: {fileID: 11500000, guid: 0dffe83844c9cdc4c977be24a15c4ea9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _layer: 0
@@ -302,11 +302,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1177234536}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bc8a1cc01889b6428429b3a6a5dbc88, type: 3}
+  m_Script: {fileID: 11500000, guid: 0dffe83844c9cdc4c977be24a15c4ea9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _layer: 1
-  _generators: []
+  _generators:
+  - {fileID: 11400000, guid: eb73743186a930c4c9c7c2a017d8a308, type: 2}
 --- !u!483693784 &1177234539
 TilemapRenderer:
   m_ObjectHideFlags: 0
@@ -421,7 +422,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1215160160}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9fa394306115b924c96318c59428f726, type: 3}
+  m_Script: {fileID: 11500000, guid: 692ea5781aba89e42b4ca460d138da0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Width: 15

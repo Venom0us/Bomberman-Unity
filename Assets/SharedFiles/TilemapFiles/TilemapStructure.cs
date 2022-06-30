@@ -1,11 +1,11 @@
-using Bomberman.SharedFiles.Generation;
+using Bomberman.SharedFiles.GenerationFiles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-namespace Bomberman.SharedFiles
+namespace Bomberman.SharedFiles.TilemapFiles
 {
     public class TilemapStructure : MonoBehaviour
     {
@@ -28,16 +28,13 @@ namespace Bomberman.SharedFiles
         [SerializeField]
         private Generator[] _generators;
 
-        private void Awake()
+        public void Initialize()
         {
             Grid = transform.parent.GetComponent<TileGrid>();
             _mapGraphic = GetComponent<Tilemap>();
             _cells = new int[Width * Height];
             _dirtyCells = new HashSet<Vector3Int>();
-        }
 
-        public void Initialize()
-        {
             foreach (var generator in _generators)
                 generator.Generate(this);
             UpdateTiles(false);

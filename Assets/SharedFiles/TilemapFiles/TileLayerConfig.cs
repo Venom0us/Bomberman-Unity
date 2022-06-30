@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-namespace Bomberman.SharedFiles
+namespace Bomberman.SharedFiles.TilemapFiles
 {
     [Serializable]
     public class TileLayerConfig<T> : TileLayerConfig

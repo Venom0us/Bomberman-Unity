@@ -1,4 +1,4 @@
-﻿namespace Bomberman.SharedFiles
+﻿namespace Bomberman.SharedFiles.TilemapFiles
 {
     public class TileLayerTypes
     {

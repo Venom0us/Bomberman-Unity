@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Bomberman.SharedFiles.TilemapFiles;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Bomberman.SharedFiles.Generation
+namespace Bomberman.SharedFiles.GenerationFiles.Generators
 {
     [CreateAssetMenu(menuName = "Map/Generators/WallGenerator")]
     public class WallGenerator : Generator

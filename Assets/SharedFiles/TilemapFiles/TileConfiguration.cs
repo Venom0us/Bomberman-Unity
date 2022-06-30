@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bomberman.SharedFiles
+namespace Bomberman.SharedFiles.TilemapFiles
 {
     [Serializable]
     public class TileConfiguration

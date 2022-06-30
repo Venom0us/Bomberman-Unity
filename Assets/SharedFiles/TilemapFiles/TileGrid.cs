@@ -5,7 +5,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-namespace Bomberman.SharedFiles
+namespace Bomberman.SharedFiles.TilemapFiles
 {
     public class TileGrid : MonoBehaviour
     {
