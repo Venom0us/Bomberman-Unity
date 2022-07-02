@@ -96,7 +96,7 @@ namespace Bomberman.ClientFiles
 
         public bool Equals(Player other)
         {
-            return Username.Equals(other.Username);
+            return Username.Equals(other.Username, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
