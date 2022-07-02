@@ -1,8 +1,10 @@
 using Bomberman.ClientFiles;
+using Bomberman.LobbyFiles;
 using Bomberman.SharedFiles.Others;
 using NetSockets.PacketHandling;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 
 namespace Bomberman.ServerFiles
@@ -21,6 +23,29 @@ namespace Bomberman.ServerFiles
                 throw new Exception("An instance of Server class already exists.");
             _instance = this;
             PacketReceived += PacketDispatcher;
+            ClientDisconnected += Server_ClientDisconnected;
+        }
+
+        private void Server_ClientDisconnected(object sender, EventArgs e)
+        {
+            var client = (TcpClient)sender;
+            if (!Players.TryGetValue(client, out Player player)) return;
+
+            if (LobbyManager.Server.LobbyQueue.Contains(player))
+            {
+                // Remove from lobby container
+                LobbyManager.Server.Leave(player);
+                UnityThread.Instance.Execute(() => LobbyManager.Client.Visualize());
+
+                // Notify other players, of this player's departure from lobby
+                var otherPlayers = GetOtherPlayers(client);
+                foreach (var otherPlayer in otherPlayers)
+                    SendPacket(otherPlayer.TcpClient, new Packet<byte>((byte)OpCodes.LeaveLobby, player.Username));
+            }
+            else if (LobbyManager.Server.InGame.Contains(player))
+            {
+                // TODO: Notify clients that this player left the game
+            }
         }
 
         private void PacketDispatcher(object sender, PacketArgs<byte> e)

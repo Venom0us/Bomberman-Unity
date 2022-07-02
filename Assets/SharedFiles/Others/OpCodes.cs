@@ -5,5 +5,8 @@
         JoinServer = 11,
         JoinLobby,
         JoinGame,
+        ReadyUp,
+        LeaveLobby,
+        UpdateLobby
     }
 }

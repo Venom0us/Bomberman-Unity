@@ -2,7 +2,6 @@
 using Bomberman.LobbyFiles;
 using Bomberman.SharedFiles.Others;
 using NetSockets.PacketHandling;
-using System;
 using System.Net.Sockets;
 
 namespace Bomberman.ServerFiles
@@ -26,6 +25,9 @@ namespace Bomberman.ServerFiles
                 case OpCodes.JoinLobby:
                     JoinLobby();
                     break;
+                case OpCodes.ReadyUp:
+                    ReadyUp(packet.Arguments);
+                    break;
             }
         }
 
@@ -36,7 +38,13 @@ namespace Bomberman.ServerFiles
             // Inform other connected clients
             var otherPlayers = Server.GetOtherPlayers(Client);
             foreach (var player in otherPlayers)
-                Server.SendPacket(player.TcpClient, new Packet<byte>((byte)OpCodes.JoinLobby, player.Username));
+            {
+                Server.SendPacket(player.TcpClient, new Packet<byte>((byte)OpCodes.JoinLobby, Player.Username));
+            }
+
+            // Send new client, info about existing connected clients in lobby
+            foreach (var player in otherPlayers)
+                Server.SendPacket(Client, new Packet<byte>((byte)OpCodes.JoinLobby, player.Username));
         }
 
         private void JoinServer(string arguments)
@@ -49,6 +57,17 @@ namespace Bomberman.ServerFiles
             Server.Players.Add(Client, new Player(Client, userName, isHost));
             Player = Server.ClientToPlayer(Client);
             JoinLobby();
+        }
+
+        private void ReadyUp(string arguments)
+        {
+            var lobbyState = Player.LobbyState.DeserializeLobbyState(arguments);
+            LobbyManager.Server.ReadyUp(lobbyState.Username, lobbyState.IsReady);
+
+            // Inform other players of this player's readiness
+            var otherPlayers = Server.GetOtherPlayers(Client);
+            foreach (var otherPlayer in otherPlayers)
+                Server.SendPacket(otherPlayer.TcpClient, new Packet<byte>((byte)OpCodes.ReadyUp, arguments));
         }
     }
 }

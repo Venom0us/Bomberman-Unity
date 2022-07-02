@@ -1,10 +1,10 @@
 using Bomberman.Libraries;
+using Bomberman.LobbyFiles;
 using Bomberman.ServerFiles;
 using Bomberman.SharedFiles.Others;
 using NetSockets.PacketHandling;
 using System;
-using System.Globalization;
-using System.Threading;
+using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -91,8 +91,12 @@ namespace Bomberman.ClientFiles
 
                 // Let server know we are joining the lobby
                 Notify(OpCodes.JoinServer, Player.Creation.SerializeCreation(Player));
-
-                // TODO: transition to lobby
+                Transition(Scenes.Lobby, () =>
+                {
+                    // Join lobby client side
+                    LobbyManager.Server.Join(Player);
+                    LobbyManager.Client.Visualize();
+                });
             }
             else
             {
@@ -123,8 +127,12 @@ namespace Bomberman.ClientFiles
 
                 // Let server know we are joining the lobby
                 Notify(OpCodes.JoinServer, Player.Creation.SerializeCreation(Player));
-
-                // TODO: transition to lobby
+                Transition(Scenes.Lobby, () =>
+                {
+                    // Join lobby client side
+                    LobbyManager.Server.Join(Player);
+                    LobbyManager.Client.Visualize();
+                });
             }
         }
 
@@ -133,10 +141,42 @@ namespace Bomberman.ClientFiles
             _client.SendPacket(new Packet<byte>((byte)opCode, arguments));
         }
 
-        public void Transition(Scenes scene)
+        public void Disconnect()
         {
-            SceneManager.LoadScene(scene.ToString(), LoadSceneMode.Single);
+            if (_client.IsConnected)
+                _client.Disconnect();
+            if (_server != null && _server.IsRunning)
+                _server.Shutdown();
+
+            _server = null;
+        }
+
+        public void Transition(Scenes scene, Action executeActionAfterLoad = null)
+        {
+            StartCoroutine(InitializeScene(scene, executeActionAfterLoad));
+        }
+
+        private IEnumerator InitializeScene(Scenes scene, Action executeActionAfterLoad = null)
+        {
+            yield return StartCoroutine(WaitUntilSceneLoaded(scene, executeActionAfterLoad));
+        }
+
+        private IEnumerator WaitUntilSceneLoaded(Scenes scene, Action executeActionAfterLoad = null)
+        {
             CurrentScene = scene;
+            var callback = SceneManager.LoadSceneAsync(scene.ToString(), LoadSceneMode.Single);
+
+            while (!callback.isDone)
+            {
+                yield return null;
+            }
+
+            // Pass one frame so all start/awake methods are executed
+            yield return new WaitForEndOfFrame();
+
+            CurrentScene = scene;
+
+            executeActionAfterLoad?.Invoke();
         }
     }
 }

@@ -1,9 +1,10 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
 using UnityEngine;
 
 namespace Bomberman.ClientFiles
 {
-    public class Player
+    public class Player : IEquatable<Player>
     {
         public readonly TcpClient TcpClient;
         public readonly Client Client;
@@ -11,6 +12,8 @@ namespace Bomberman.ClientFiles
         public Vector3 Position;
         public readonly bool IsHost;
         public bool IsReady;
+
+        public int BombermanIconSlot = -1;
 
         public Player(Client server, string username, bool isHost)
         {
@@ -41,6 +44,28 @@ namespace Bomberman.ClientFiles
             {
                 return JsonUtility.FromJson<Creation>(json);
             }
+        }
+
+        public class LobbyState
+        {
+            public string Username;
+            public bool IsReady;
+
+            public static string SerializeLobbyState(Player player)
+            {
+                var lobbyState = new LobbyState { Username = player.Username, IsReady = player.IsReady };
+                return JsonUtility.ToJson(lobbyState);
+            }
+
+            public static LobbyState DeserializeLobbyState(string json)
+            {
+                return JsonUtility.FromJson<LobbyState>(json);
+            }
+        }
+
+        public bool Equals(Player other)
+        {
+            return Username.Equals(other.Username);
         }
     }
 }
