@@ -65,6 +65,13 @@ namespace Bomberman.ServerFiles
             var userName = args.Username;
             var isHost = args.IsHost;
 
+            if (Server.Players.Values.Any(a => a.Username.Equals(userName, System.StringComparison.OrdinalIgnoreCase)))
+            {
+                // Stop player from joining with message
+                Server.DisconnectClient(Client, $"Username \"{args.Username}\" already in use.");
+                return;
+            }
+
             // Add to player list + join lobby
             Server.Players.Add(Client, new Player(Client, userName, isHost));
             Player = Server.ClientToPlayer(Client);

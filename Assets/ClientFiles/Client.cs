@@ -35,6 +35,15 @@ namespace Bomberman.ClientFiles
                 HeartbeatInterval = 10
             };
             _client.PacketReceived += PacketDispatcher;
+            _client.Disconnected += ClientDisconnected;
+        }
+
+        private void ClientDisconnected(object sender, NetSockets.Client<byte>.ClientArgs e)
+        {
+            if (e != null)
+            {
+                // TODO: Show message in UI
+            }
         }
 
         private void Update()
@@ -108,12 +117,8 @@ namespace Bomberman.ClientFiles
             {
                 Player = new Player(this, username, true);
 
-                // Let server know we are joining the lobby
-                Transition(Scenes.Lobby, () =>
-                {
-                    // Notify server we joined
-                    Notify(OpCodes.JoinServer, Player.Creation.Serialize(Player));
-                });
+                // Notify server we joined
+                Notify(OpCodes.JoinServer, Player.Creation.Serialize(Player));
             }
             else
             {
@@ -142,12 +147,8 @@ namespace Bomberman.ClientFiles
             {
                 Player = new Player(this, username, false);
 
-                // Let server know we are joining the lobby
-                Transition(Scenes.Lobby, () =>
-                {
-                    // Notify server we joined
-                    Notify(OpCodes.JoinServer, Player.Creation.Serialize(Player));
-                });
+                // Notify server we joined
+                Notify(OpCodes.JoinServer, Player.Creation.Serialize(Player));
             }
         }
 

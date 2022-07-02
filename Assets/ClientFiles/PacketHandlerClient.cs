@@ -79,7 +79,12 @@ namespace Bomberman.ClientFiles
                 player.BombermanIconSlot = state.IconIndex;
                 LobbyManager.Server.Join(player);
             }
-            UpdateLobby();
+
+            // Load lobby scene
+            Client.Instance.Transition(Scenes.Lobby, () =>
+            {
+                UpdateLobby();
+            });
         }
 
         private void UpdateLobby()
