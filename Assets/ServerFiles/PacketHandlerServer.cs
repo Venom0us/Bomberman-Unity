@@ -2,6 +2,8 @@
 using Bomberman.LobbyFiles;
 using Bomberman.SharedFiles.Others;
 using NetSockets.PacketHandling;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 
 namespace Bomberman.ServerFiles
@@ -35,21 +37,31 @@ namespace Bomberman.ServerFiles
         {
             LobbyManager.Server.Join(Player);
 
+            // Set slot indexes
+            Player.LobbySlot = LobbyManager.Server.LobbyQueue.Count - 1;
+            
+            var validSlots = new List<int>();
+            for (int i = 0; i < 8; i++)
+                validSlots.Add(i);
+
+            // Assign new bomberman icon
+            var alreadyTakenSlots = LobbyManager.Server.LobbyQueue.Select(a => a.BombermanIconSlot).Where(a => a != -1).ToArray();
+            validSlots.RemoveAll(a => alreadyTakenSlots.Contains(a));
+            Player.BombermanIconSlot = validSlots[Server.Random.Next(0, validSlots.Count)];
+
             // Inform other connected clients
-            var otherPlayers = Server.GetOtherPlayers(Client);
-            foreach (var player in otherPlayers)
+            foreach (var player in Server.GetOtherPlayers(Client))
             {
-                Server.SendPacket(player.TcpClient, new Packet<byte>((byte)OpCodes.JoinLobby, Player.Username));
+                Server.SendPacket(player.TcpClient, new Packet<byte>((byte)OpCodes.JoinLobby, Player.LobbyState.Serialize(Player)));
             }
 
             // Send new client, info about existing connected clients in lobby
-            foreach (var player in otherPlayers)
-                Server.SendPacket(Client, new Packet<byte>((byte)OpCodes.JoinLobby, player.Username));
+            Server.SendPacket(Client, new Packet<byte>((byte)OpCodes.InitLobby, Player.LobbyState.Serialize(Server.Players.Values.ToArray())));
         }
 
         private void JoinServer(string arguments)
         {
-            var args = Player.Creation.DeserializeCreation(arguments);
+            var args = Player.Creation.Deserialize(arguments);
             var userName = args.Username;
             var isHost = args.IsHost;
 
@@ -61,7 +73,7 @@ namespace Bomberman.ServerFiles
 
         private void ReadyUp(string arguments)
         {
-            var lobbyState = Player.LobbyState.DeserializeLobbyState(arguments);
+            var lobbyState = Player.LobbyState.Deserialize(arguments);
             LobbyManager.Server.ReadyUp(lobbyState.Username, lobbyState.IsReady);
 
             // Inform other players of this player's readiness

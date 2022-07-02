@@ -26,8 +26,8 @@ namespace Bomberman.ClientFiles
                 case OpCodes.LeaveLobby:
                     LeaveLobby(packet.Arguments);
                     break;
-                case OpCodes.UpdateLobby:
-                    UpdateLobby();
+                case OpCodes.InitLobby:
+                    InitLobby(packet.Arguments);
                     break;
             }
         }
@@ -42,26 +42,54 @@ namespace Bomberman.ClientFiles
 
         private void ReadyUp(string arguments)
         {
-            var lobbyState = Player.LobbyState.DeserializeLobbyState(arguments);
+            var lobbyState = Player.LobbyState.Deserialize(arguments);
             LobbyManager.Server.ReadyUp(lobbyState.Username, lobbyState.IsReady);
             UpdateLobby();
         }
 
         private void JoinLobby(string arguments)
         {
+            var lobbyState = Player.LobbyState.Deserialize(arguments);
+
             Player player;
-            if (Client.Instance.Player.Username.Equals(arguments))
+            if (Client.Instance.Player.Username.Equals(lobbyState.Username))
                 player = Client.Instance.Player;
             else
-                player = new Player((TcpClient)null, arguments, false);
+                player = new Player((TcpClient)null, lobbyState.Username, false);
+
+            player.LobbySlot = lobbyState.LobbyIndex;
+            player.BombermanIconSlot = lobbyState.IconIndex;
 
             LobbyManager.Server.Join(player);
+            UpdateLobbyPlayer(player);
+        }
+
+        private void InitLobby(string arguments)
+        {
+            var lobbyState = Player.LobbyState.Deserialize<Player.LobbyState>(arguments);
+            foreach (var state in lobbyState)
+            {
+                Player player;
+                if (Client.Instance.Player.Username.Equals(state.Username))
+                    player = Client.Instance.Player;
+                else
+                    player = new Player((TcpClient)null, state.Username, false);
+
+                player.LobbySlot = state.LobbyIndex;
+                player.BombermanIconSlot = state.IconIndex;
+                LobbyManager.Server.Join(player);
+            }
             UpdateLobby();
         }
 
         private void UpdateLobby()
         {
             UnityThread.Instance.Execute(() => LobbyManager.Client.Visualize());
+        }
+
+        private void UpdateLobbyPlayer(Player player)
+        {
+            UnityThread.Instance.Execute(() => LobbyManager.Client.VisualizePlayer(player));
         }
     }
 }

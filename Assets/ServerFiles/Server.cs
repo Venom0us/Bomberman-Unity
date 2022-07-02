@@ -14,6 +14,8 @@ namespace Bomberman.ServerFiles
         private static Server _instance;
         public static Server Instance { get { return _instance; } }
 
+        public readonly Random Random;
+
         private readonly PacketHandlerServer PacketHandler = new();
         public readonly Dictionary<TcpClient, Player> Players = new();
 
@@ -24,6 +26,7 @@ namespace Bomberman.ServerFiles
             _instance = this;
             PacketReceived += PacketDispatcher;
             ClientDisconnected += Server_ClientDisconnected;
+            Random = new Random();
         }
 
         private void Server_ClientDisconnected(object sender, EventArgs e)

@@ -45,7 +45,7 @@ namespace Bomberman.Assets.ClientFiles
             LobbyManager.Client.Visualize();
 
             // Notify server to tell other clients about the ready state of this player
-            Client.Instance.Notify(OpCodes.ReadyUp, Player.LobbyState.SerializeLobbyState(Client.Instance.Player));
+            Client.Instance.Notify(OpCodes.ReadyUp, Player.LobbyState.Serialize(Client.Instance.Player));
         }
 
         public void LeaveLobbyButton()

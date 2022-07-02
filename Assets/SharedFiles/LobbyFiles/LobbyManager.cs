@@ -23,51 +23,50 @@ namespace Bomberman.LobbyFiles
                 Server = server;
             }
 
-            public void Visualize()
+            public void VisualizePlayer(Player player)
             {
                 var queue = Server.LobbyQueue;
-                for (var slot=0; slot < queue.Count; slot++)
+                player = queue.FirstOrDefault(a => a.Username.Equals(player.Username));
+                if (player == null) return;
+                var slot = System.Array.IndexOf((System.Array)queue, player);
+                VisualizePlayerData(player);
+            }
+
+            private void VisualizePlayerData(Player player)
+            {
+                // Retrieve UI data
+                var slotObj = UserInterfaceHandler.Instance.GetLobbySlot(player.LobbySlot);
+                var icon = slotObj.transform.GetChild(0).GetComponent<Image>();
+                var label = slotObj.transform.GetChild(1).GetComponent<TMP_Text>();
+
+                // Set username
+                label.text = player.Username;
+
+                // Setting ready state
+                label.color = player.IsReady ? Color.green : Color.red;
+
+                // Set bomberman icon
+                icon.color = UserInterfaceHandler.Instance.GetBombermanIconColor(player.BombermanIconSlot);
+
+                // Activate the slot
+                slotObj.SetActive(true);
+            }
+
+            public void Visualize()
+            {
+                var queue = (Player[])Server.LobbyQueue;
+                if (queue.Length == 0) return;
+
+                // Deactivate slots
+                for (int i=0; i < 8; i++)
                 {
-                    var player = queue[slot];
-
-                    // Retrieve UI data
-                    var slotObj = UserInterfaceHandler.Instance.GetLobbySlot(slot);
-                    var icon = slotObj.transform.GetChild(0).GetComponent<Image>();
-                    var label = slotObj.transform.GetChild(1).GetComponent<TMP_Text>();
-
-                    // Set username
-                    label.text = player.Username;
-
-                    // Setting ready state
-                    label.color = player.IsReady ? Color.green : Color.red;
-
-                    // Get valid random bomberman icon for this player
-                    if (player.BombermanIconSlot == -1)
-                    {
-                        var validSlots = new List<int>();
-                        for (int i = 0; i < 8; i++)
-                            validSlots.Add(i);
-
-                        // Assign new bomberman icon
-                        var alreadyTakenSlots = queue.Select(a => a.BombermanIconSlot).Where(a => a != -1).ToArray();
-
-                        validSlots.RemoveAll(a => alreadyTakenSlots.Contains(a));
-                        player.BombermanIconSlot = validSlots[Random.Range(0, validSlots.Count)];
-                    }
-
-                    // Set bomberman icon
-                    icon.color = UserInterfaceHandler.Instance.GetBombermanIconColor(player.BombermanIconSlot);
-
-                    // Activate the slot
-                    slotObj.SetActive(true);
+                    var slotObj = UserInterfaceHandler.Instance.GetLobbySlot(i);
+                    slotObj.SetActive(false);
                 }
 
-                // Deactivate slots that are not used
-                var inactiveSlots = 8 - queue.Count;
-                for (int i=0; i < inactiveSlots; i++)
+                for (var slot = 0; slot < queue.Length; slot++)
                 {
-                    var slotObj = UserInterfaceHandler.Instance.GetLobbySlot(queue.Count + i);
-                    slotObj.SetActive(false);
+                    VisualizePlayerData(queue[slot]);
                 }
             }
         }

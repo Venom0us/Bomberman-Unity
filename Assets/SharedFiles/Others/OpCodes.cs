@@ -4,9 +4,9 @@
     {
         JoinServer = 11,
         JoinLobby,
+        InitLobby,
         JoinGame,
         ReadyUp,
         LeaveLobby,
-        UpdateLobby
     }
 }

@@ -1,5 +1,4 @@
 using Bomberman.Libraries;
-using Bomberman.LobbyFiles;
 using Bomberman.ServerFiles;
 using Bomberman.SharedFiles.Others;
 using NetSockets.PacketHandling;
@@ -90,12 +89,10 @@ namespace Bomberman.ClientFiles
                 Player = new Player(this, username, true);
 
                 // Let server know we are joining the lobby
-                Notify(OpCodes.JoinServer, Player.Creation.SerializeCreation(Player));
                 Transition(Scenes.Lobby, () =>
                 {
-                    // Join lobby client side
-                    LobbyManager.Server.Join(Player);
-                    LobbyManager.Client.Visualize();
+                    // Notify server we joined
+                    Notify(OpCodes.JoinServer, Player.Creation.Serialize(Player));
                 });
             }
             else
@@ -126,12 +123,10 @@ namespace Bomberman.ClientFiles
                 Player = new Player(this, username, false);
 
                 // Let server know we are joining the lobby
-                Notify(OpCodes.JoinServer, Player.Creation.SerializeCreation(Player));
                 Transition(Scenes.Lobby, () =>
                 {
-                    // Join lobby client side
-                    LobbyManager.Server.Join(Player);
-                    LobbyManager.Client.Visualize();
+                    // Notify server we joined
+                    Notify(OpCodes.JoinServer, Player.Creation.Serialize(Player));
                 });
             }
         }
