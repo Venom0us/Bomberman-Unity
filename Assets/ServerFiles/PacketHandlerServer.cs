@@ -68,7 +68,7 @@ namespace Bomberman.ServerFiles
             if (userName.Length > 20)
             {
                 // This is an injected packet, since this is halted on the clientside?!
-                Server.DisconnectClient(Client, "Username too long, must be < than 20 characters.");
+                Server.DisconnectClient(Client, "Username too long, must be <= than 20 characters.");
                 return;
             }
 

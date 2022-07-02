@@ -61,7 +61,7 @@ namespace Bomberman.ClientFiles
             message = null;
             if (username.Length > 20)
             {
-                message = "Username too long, must be < than 20 characters.";
+                message = "Username too long, must be <= than 20 characters.";
                 return false;
             }
             return true;
