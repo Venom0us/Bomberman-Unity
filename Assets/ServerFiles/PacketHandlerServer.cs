@@ -65,6 +65,13 @@ namespace Bomberman.ServerFiles
             var userName = args.Username;
             var isHost = args.IsHost;
 
+            if (userName.Length > 20)
+            {
+                // This is an injected packet, since this is halted on the clientside?!
+                Server.DisconnectClient(Client, "Username too long, must be < than 20 characters.");
+                return;
+            }
+
             if (Server.Players.Values.Any(a => a.Username.Equals(userName, System.StringComparison.OrdinalIgnoreCase)))
             {
                 // Stop player from joining with message
