@@ -49,8 +49,12 @@ namespace Bomberman.ClientFiles
 
         private bool IsValidUsername(string username, out string message)
         {
-            // TODO: Implement length limitation + check with existing usernames on the server
             message = null;
+            if (username.Length > 20)
+            {
+                message = "Username too long, must be < than 20 characters.";
+                return false;
+            }
             return true;
         }
 
@@ -78,11 +82,27 @@ namespace Bomberman.ClientFiles
             }
 
             // Run server on seperate thread
-            Task.Run(() => _server.Run());
+            string errorMsg = null;
+            Task.Run(() => 
+            {
+                try 
+                {
+                    _server.Run();
+                } catch(Exception e)
+                {
+                    errorMsg = e.Message;
+                }
+            });
 
             // Wait until server is running correctly
-            while (!_server.IsRunning)
+            while (errorMsg == null && !_server.IsRunning)
             { }
+
+            if (!string.IsNullOrWhiteSpace(errorMsg))
+            {
+                // TODO: Show error message on UI
+                return;
+            }
 
             if (_client.Connect(ip, Convert.ToInt32(port)))
             {
