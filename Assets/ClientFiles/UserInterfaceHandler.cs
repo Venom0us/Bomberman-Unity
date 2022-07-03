@@ -5,7 +5,7 @@ using Bomberman.SharedFiles.Others;
 using TMPro;
 using UnityEngine;
 
-namespace Bomberman.Assets.ClientFiles
+namespace Bomberman.ClientFiles
 {
     public class UserInterfaceHandler : SingletonBehaviour<UserInterfaceHandler>
     {
@@ -13,6 +13,8 @@ namespace Bomberman.Assets.ClientFiles
         private GameObject[] _lobbySlots;
         [SerializeField]
         private Color[] _bombermanIconColors;
+        [SerializeField]
+        private TMP_Text _errorText;
 
         public GameObject GetLobbySlot(int slotIndex)
         {
@@ -22,6 +24,12 @@ namespace Bomberman.Assets.ClientFiles
         public Color GetBombermanIconColor(int slotIndex)
         {
             return _bombermanIconColors[slotIndex];
+        }
+
+        public void SetErrorMessage(string msg)
+        {
+            if (_errorText == null) return;
+            _errorText.text = msg;
         }
 
         public void JoinAndHostButton(GameObject container)

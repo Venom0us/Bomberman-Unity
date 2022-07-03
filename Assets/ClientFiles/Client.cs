@@ -1,3 +1,4 @@
+using Bomberman.ClientFiles;
 using Bomberman.Libraries;
 using Bomberman.ServerFiles;
 using Bomberman.SharedFiles.Others;
@@ -21,6 +22,8 @@ namespace Bomberman.ClientFiles
 
         private readonly PacketHandlerClient PacketHandler = new();
 
+        private bool _isConnecting = false;
+
         protected override void Awake()
         {
             base.Awake();
@@ -40,10 +43,16 @@ namespace Bomberman.ClientFiles
 
         private void ClientDisconnected(object sender, NetSockets.Client<byte>.ClientArgs e)
         {
+            _isConnecting = false;
+
             if (e != null)
             {
-                // TODO: Show message in UI
+                UserInterfaceHandler.Instance.SetErrorMessage(e.Message);
             }
+
+            _client.PacketReceived -= PacketDispatcher;
+            _client.Disconnected -= ClientDisconnected;
+            Start();
         }
 
         private void Update()
@@ -69,11 +78,15 @@ namespace Bomberman.ClientFiles
 
         public void ConnectAndHost(string username, string ipAddress)
         {
+            if (_isConnecting) return;
+
             if (!IsValidUsername(username, out string message))
             {
-                // TODO: Show some error message on UI
+                UserInterfaceHandler.Instance.SetErrorMessage(message);
                 return;
             }
+
+            _isConnecting = true;
 
             var splittedIp = ipAddress.Split(':', StringSplitOptions.RemoveEmptyEntries);
             if (splittedIp.Length != 2) return;
@@ -84,9 +97,10 @@ namespace Bomberman.ClientFiles
             {
                 _server = new Server(ip, port);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // TODO: Show some error message on UI
+                _isConnecting = false;
+                UserInterfaceHandler.Instance.SetErrorMessage(e.Message);
                 return;
             }
 
@@ -109,7 +123,8 @@ namespace Bomberman.ClientFiles
 
             if (!string.IsNullOrWhiteSpace(errorMsg))
             {
-                // TODO: Show error message on UI
+                _isConnecting = false;
+                UserInterfaceHandler.Instance.SetErrorMessage(errorMsg);
                 return;
             }
 
@@ -124,6 +139,8 @@ namespace Bomberman.ClientFiles
             {
                 _server.Shutdown();
             }
+
+            _isConnecting = false;
         }
 
         private void OnApplicationQuit()
@@ -136,7 +153,9 @@ namespace Bomberman.ClientFiles
 
         public void Connect(string username, string ipAddress)
         {
-            if (_client == null) return;
+            if (_client == null || _isConnecting) return;
+
+            _isConnecting = true;
 
             var splittedIp = ipAddress.Split(':');
             if (splittedIp.Length != 2) return;
@@ -150,6 +169,8 @@ namespace Bomberman.ClientFiles
                 // Notify server we joined
                 Notify(OpCodes.JoinServer, Player.Creation.Serialize(Player));
             }
+
+            _isConnecting = false;
         }
 
         public void Notify(OpCodes opCode, string arguments = null)

@@ -1,5 +1,4 @@
-﻿using Bomberman.Assets.ClientFiles;
-using Bomberman.ClientFiles;
+﻿using Bomberman.ClientFiles;
 using Bomberman.SharedFiles.Others;
 using System.Collections.Generic;
 using System.Linq;
