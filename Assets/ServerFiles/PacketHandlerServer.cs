@@ -30,7 +30,23 @@ namespace Bomberman.ServerFiles
                 case OpCodes.ReadyUp:
                     ReadyUp(packet.Arguments);
                     break;
+                case OpCodes.Move:
+                    Move(packet.Arguments);
+                    break;
             }
+        }
+
+        private void Move(string arguments)
+        {
+            // TODO: Verify position to move to on grid if valid
+            // Tell client ok, move to x,y
+        }
+
+        private void StartGame()
+        {
+            // TODO: Tell all clients to transition to game scene, and render grid.
+            // Spawn players clientside with spawn positions
+            // Have grid server-side also with correct positions of player
         }
 
         private void JoinLobby()
@@ -87,6 +103,7 @@ namespace Bomberman.ServerFiles
 
         private void ReadyUp(string arguments)
         {
+            // Ready up on server-side
             var lobbyState = Player.LobbyState.Deserialize(arguments);
             LobbyManager.Server.ReadyUp(lobbyState.Username, lobbyState.IsReady);
 
@@ -94,6 +111,13 @@ namespace Bomberman.ServerFiles
             var otherPlayers = Server.GetOtherPlayers(Client);
             foreach (var otherPlayer in otherPlayers)
                 Server.SendPacket(otherPlayer.TcpClient, new Packet<byte>((byte)OpCodes.ReadyUp, arguments));
+
+            // Start game when more than one player, and all are ready
+            var queue = LobbyManager.Server.LobbyQueue;
+            if (queue.Count > 1 && queue.All(a => a.IsReady))
+            {
+                StartGame();
+            }
         }
     }
 }

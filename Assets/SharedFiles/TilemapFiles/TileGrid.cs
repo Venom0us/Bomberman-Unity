@@ -1,3 +1,4 @@
+using Bomberman.Libraries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using UnityEngine.Tilemaps;
 
 namespace Bomberman.SharedFiles.TilemapFiles
 {
-    public class TileGrid : MonoBehaviour
+    public class TileGrid : SingletonBehaviour<TileGrid>
     {
         public int Width, Height, TileSize;
         public TileConfiguration TileConfiguration;
@@ -15,12 +16,14 @@ namespace Bomberman.SharedFiles.TilemapFiles
         private Dictionary<Layer, TilemapStructure> _tilemaps;
         private Dictionary<Layer, Dictionary<int, Tile>> _tileCache;
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+
+            // Initialization of tilemaps
             InitializeTilemaps();
             InitializeTileCache();
 
-            // Initialize the tilemaps in order by the layer numbers
             foreach (var tilemap in _tilemaps.OrderBy(a => a.Key))
                 tilemap.Value.Initialize();
         }
@@ -81,17 +84,42 @@ namespace Bomberman.SharedFiles.TilemapFiles
         /// </summary>
         /// <param name="layer"></param>
         /// <returns></returns>
-        internal TilemapStructure GetTilemap(Layer layer)
+        public TilemapStructure GetTilemap(Layer layer)
         {
             _tilemaps.TryGetValue(layer, out TilemapStructure structure);
             return structure;
         }
 
-        internal Tile GetTileGraphic(Layer layer, int tileId)
+        /// <summary>
+        /// Retrieve tile graphic for the given layer.
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="tileId"></param>
+        /// <returns></returns>
+        public Tile GetTileGraphic(Layer layer, int tileId)
         {
             if (!_tileCache.TryGetValue(layer, out var tiles)) return null;
             tiles.TryGetValue(tileId, out var tileGraphic);
             return tileGraphic;
+        }
+
+        public HashSet<Vector2Int> GetSpawnPositions()
+        {
+            var positions = new HashSet<Vector2Int>
+            {
+                // Corners
+                new Vector2Int(1,1), // bottom left
+                new Vector2Int(Width -2, 1), // bottom right
+                new Vector2Int(Width -2, Height -2), // top right
+                new Vector2Int(1, Height -2), // top left
+
+                // Middles
+                new Vector2Int(Width / 2, Height -2), // top middle
+                new Vector2Int(Width / 2, 1), // bottom middle
+                new Vector2Int(1, Height / 2), // left middle
+                new Vector2Int(Width - 2, Height / 2), // right middle
+            };
+            return positions;
         }
 
         public enum Layer

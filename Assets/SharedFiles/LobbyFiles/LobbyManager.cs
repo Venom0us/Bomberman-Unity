@@ -105,9 +105,9 @@ namespace Bomberman.LobbyFiles
                 Debug.Log($"Player {(isReady ? "ready" : "not ready")}: {player.Username}");
             }
 
-            public void Start()
+            public Player[] Start()
             {
-                if (_lobbyQueue.Count(a => a.IsReady) < 2) return;
+                if (_lobbyQueue.Count(a => a.IsReady) < 2) return null;
 
                 var readyPlayers = _lobbyQueue.Where(a => a.IsReady).ToArray();
                 foreach (var player in readyPlayers)
@@ -116,6 +116,8 @@ namespace Bomberman.LobbyFiles
                     player.Client.Notify(OpCodes.JoinGame);
                     _inGame.Add(player);
                 }
+
+                return readyPlayers;
             }
 
             public void EndGame()

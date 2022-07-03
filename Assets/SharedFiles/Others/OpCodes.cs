@@ -8,5 +8,6 @@
         JoinGame,
         ReadyUp,
         LeaveLobby,
+        Move
     }
 }

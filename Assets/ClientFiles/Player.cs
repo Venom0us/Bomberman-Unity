@@ -10,9 +10,10 @@ namespace Bomberman.ClientFiles
         public readonly TcpClient TcpClient;
         public readonly Client Client;
         public readonly string Username;
-        public Vector3 Position;
+        public Vector2Int Position;
         public readonly bool IsHost;
         public bool IsReady;
+        public Bomberman Bomberman;
 
         public int LobbySlot = -1;
         public int BombermanIconSlot = -1;
@@ -46,6 +47,48 @@ namespace Bomberman.ClientFiles
             public static Creation Deserialize(string json)
             {
                 return JsonUtility.FromJson<Creation>(json);
+            }
+        }
+
+        [Serializable]
+        public class Minimal
+        {
+            public string Username;
+            public int X;
+            public int Y;
+
+            public static string Serialize(Player player)
+            {
+                var minimal = new Minimal
+                {
+                    Username = player.Username,
+                    X = player.Position.x,
+                    Y = player.Position.y
+                };
+                return JsonUtility.ToJson(minimal);
+            }
+
+            public static Minimal Deserialize(string json)
+            {
+                return JsonUtility.FromJson<Minimal>(json);
+            }
+
+            public static string Serialize(Player[] players)
+            {
+                var state = new Minimal[players.Length];
+                for (int i = 0; i < players.Length; i++)
+                    state[i] = new Minimal
+                    {
+                        Username = players[i].Username,
+                        X = players[i].Position.x,
+                        Y = players[i].Position.y
+                    };
+                return JsonHelper.ToJson(state);
+            }
+
+            public static T[] Deserialize<T>(string json)
+            {
+                return JsonHelper.FromJson<T>(json);
             }
         }
 

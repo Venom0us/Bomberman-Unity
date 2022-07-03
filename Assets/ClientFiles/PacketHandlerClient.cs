@@ -3,6 +3,7 @@ using Bomberman.SharedFiles.Others;
 using NetSockets.PacketHandling;
 using System.Linq;
 using System.Net.Sockets;
+using UnityEngine;
 
 namespace Bomberman.ClientFiles
 {
@@ -29,7 +30,52 @@ namespace Bomberman.ClientFiles
                 case OpCodes.InitLobby:
                     InitLobby(packet.Arguments);
                     break;
+                case OpCodes.JoinGame:
+                    JoinGame(packet.Arguments);
+                    break;
+                case OpCodes.Move:
+                    Move(packet.Arguments);
+                    break;
             }
+        }
+
+        private void JoinGame(string arguments)
+        {
+            // Transition to the game scene
+            Client.Transition(Scenes.Game, () =>
+            {
+                var readyPlayers = LobbyManager.Server.Start();
+
+                // Spawn all players on grid
+                var players = Player.Minimal.Deserialize<Player.Minimal>(arguments);
+                var container = new GameObject("Bombermans");
+                foreach (var player in players)
+                {
+                    var position = new Vector2(player.X, player.Y);
+                    var bomberman = Object.Instantiate(PrefabContainer.Instance.Bomberman, position, Quaternion.identity);
+                    bomberman.transform.parent = container.transform;
+
+                    var match = readyPlayers.FirstOrDefault(a => a.Username.Equals(player.Username, System.StringComparison.OrdinalIgnoreCase));
+                    if (match == null) continue;
+
+                    match.Bomberman = bomberman;
+                    match.Bomberman.Move(player.X, player.Y);
+                }
+            });
+        }
+
+        private void Move(string arguments)
+        {
+            // Convert coords
+            var player = Player.Minimal.Deserialize(arguments);
+            var match = LobbyManager.Server.InGame.FirstOrDefault(a => a.Username.Equals(player.Username, System.StringComparison.OrdinalIgnoreCase));
+            if (match == null) return;
+
+            var coordX = player.X;
+            var coordY = player.Y;
+
+            // Move bomberman
+            match.Bomberman.Move(coordX, coordY);
         }
 
         private void LeaveLobby(string arguments)
@@ -52,8 +98,8 @@ namespace Bomberman.ClientFiles
             var lobbyState = Player.LobbyState.Deserialize(arguments);
 
             Player player;
-            if (Client.Instance.Player.Username.Equals(lobbyState.Username))
-                player = Client.Instance.Player;
+            if (Client.Player.Username.Equals(lobbyState.Username))
+                player = Client.Player;
             else
                 player = new Player((TcpClient)null, lobbyState.Username, false);
 
@@ -70,8 +116,8 @@ namespace Bomberman.ClientFiles
             foreach (var state in lobbyState)
             {
                 Player player;
-                if (Client.Instance.Player.Username.Equals(state.Username))
-                    player = Client.Instance.Player;
+                if (Client.Player.Username.Equals(state.Username))
+                    player = Client.Player;
                 else
                     player = new Player((TcpClient)null, state.Username, false);
 
@@ -81,7 +127,7 @@ namespace Bomberman.ClientFiles
             }
 
             // Load lobby scene
-            Client.Instance.Transition(Scenes.Lobby, () =>
+            Client.Transition(Scenes.Lobby, () =>
             {
                 UpdateLobby();
             });
